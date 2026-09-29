@@ -1,6 +1,6 @@
-import type { Project } from "../types/project.ts"
-import { createProjectMedia } from "../content/assets.ts"
-export type { Project, ProjectStatus, CaseStudySection } from "../types/project.ts"
+import type { Project } from "../types/project"
+import { createProjectMedia } from "../content/assets"
+export type { Project, ProjectStatus, CaseStudySection } from "../types/project"
 
 export const projects: Project[] = [
   {

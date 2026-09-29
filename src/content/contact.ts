@@ -1,4 +1,4 @@
-import type { ContactLink } from "../types/content.ts"
+import type { ContactLink } from "../types/content"
 
 export const contactLinks: ContactLink[] = [
   {

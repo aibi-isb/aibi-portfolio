@@ -1,4 +1,4 @@
-import type { ProcessStep } from "../types/content.ts"
+import type { ProcessStep } from "../types/content"
 
 export const processSteps: ProcessStep[] = [
   {

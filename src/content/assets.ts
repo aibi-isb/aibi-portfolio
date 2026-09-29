@@ -1,4 +1,4 @@
-import type { ProjectMedia } from "../types/project.ts"
+import type { ProjectMedia } from "../types/project"
 
 export const identityAssets: ProjectMedia[] = [
   { id: "logo", label: "IB Studio logo", src: null, width: 256, height: 256, alt: "IB Studio", decorative: false, status: "missing", owner: "Ibrahim", kind: "image" },

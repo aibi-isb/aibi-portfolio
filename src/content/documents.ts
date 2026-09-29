@@ -1,4 +1,4 @@
-import type { PortfolioDocument } from "../types/content.ts"
+import type { PortfolioDocument } from "../types/content"
 
 export const documents: PortfolioDocument[] = [
   {

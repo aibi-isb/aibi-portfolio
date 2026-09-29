@@ -1,7 +1,18 @@
-export default function Home() {
-  return (
-    <main>
-      <div>Next.js on GitHub Pages</div>
-    </main>
-  );
+'use client';
+
+import { useEffect, useState } from 'react';
+import App from '../src/App';
+
+export default function Page() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return <App />;
 }

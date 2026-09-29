@@ -1,4 +1,4 @@
-import type { Capability } from "../types/content.ts"
+import type { Capability } from "../types/content"
 
 export const capabilities: Capability[] = [
   {

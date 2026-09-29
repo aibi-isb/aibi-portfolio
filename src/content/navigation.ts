@@ -1,4 +1,4 @@
-import type { NavigationItem } from "../types/content.ts"
+import type { NavigationItem } from "../types/content"
 
 export const navLinks: NavigationItem[] = [
   { label: "About", href: "#about" },
