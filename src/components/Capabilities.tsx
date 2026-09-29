@@ -1,5 +1,8 @@
+import { useEffect, useRef, useState } from "react"
+import { Link } from "react-router"
 import { capabilities } from "../content/capabilities"
 import { processSteps } from "../content/process"
+import { getProjectBySlug } from "../data/projects"
 import { useInView } from "../hooks/useInView"
 
 
@@ -13,6 +16,8 @@ function CapabilityCard({
   index: number
   inView: boolean
 }) {
+  const evidence = cap.projectSlugs?.map(getProjectBySlug).filter((project) => project !== undefined) ?? []
+
   return (
     <div
       className={`reveal ${inView ? "visible" : ""} glass rounded-2xl p-6 flex flex-col gap-4 hover:border-white/12 transition-colors`}
@@ -30,6 +35,23 @@ function CapabilityCard({
 
       <p className="text-sm text-foreground/55 leading-relaxed flex-1">{cap.description}</p>
 
+      {evidence.length > 0 && (
+        <div>
+          <p className="label-mono mb-2">Evidence</p>
+          <div className="flex flex-wrap gap-x-3 gap-y-1">
+            {evidence.map((project) => (
+              <Link
+                key={project.slug}
+                to={`/work/${project.slug}`}
+                className="text-xs text-foreground/65 underline decoration-white/20 underline-offset-4 hover:text-foreground"
+              >
+                {project.title}
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap gap-1.5 pt-2 border-t border-white/5">
         {cap.tools.map((t) => (
           <span
@@ -46,20 +68,31 @@ function CapabilityCard({
 
 
 
-function ProcessStep({
-  step,
-  index,
-  total,
-  inView,
-}: {
+function ProcessStep({ step, index, total }: {
   step: (typeof processSteps)[0]
   index: number
   total: number
-  inView: boolean
 }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [active, setActive] = useState(false)
+
+  useEffect(() => {
+    const element = ref.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setActive(entry.isIntersecting),
+      { rootMargin: "-38% 0px -42% 0px", threshold: 0 },
+    )
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
   return (
     <div
-      className={`reveal ${inView ? "visible" : ""} flex gap-5 group`}
+      ref={ref}
+      aria-current={active ? "step" : undefined}
+      className={`reveal ${active ? "visible process-step-active" : ""} flex gap-5 group`}
       style={{ transitionDelay: `${index * 100}ms` }}
     >
       {/* Left: number + connector */}
@@ -149,30 +182,6 @@ export default function Capabilities() {
                 </p>
               </div>
 
-              {/* Design-to-code visual */}
-              <div
-                className={`reveal reveal-delay-2 ${procInView ? "visible" : ""} mt-10 glass rounded-2xl p-5 relative overflow-hidden`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-br from-violet-900/10 to-blue-900/5" />
-                <p className="label-mono mb-4 relative z-10">Design → Code</p>
-
-                <div className="relative z-10 flex flex-col gap-3">
-                  {/* Figma layer */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-violet-900/15 border border-violet-900/20">
-                    <div className="w-3 h-3 rounded bg-violet-400/50" />
-                    <span className="text-xs font-mono text-foreground/60">Component.fig</span>
-                    <div className="ml-auto w-12 h-1.5 rounded-full bg-violet-400/20" />
-                  </div>
-                  {/* Arrow */}
-                  <div className="flex justify-center text-foreground/20 text-sm">↓</div>
-                  {/* Code layer */}
-                  <div className="flex items-center gap-3 p-3 rounded-xl bg-blue-900/15 border border-blue-900/20">
-                    <div className="w-3 h-3 rounded bg-blue-400/50" />
-                    <span className="text-xs font-mono text-foreground/60">Component.tsx</span>
-                    <div className="ml-auto w-12 h-1.5 rounded-full bg-blue-400/20" />
-                  </div>
-                </div>
-              </div>
             </div>
 
             {/* Right: steps */}
@@ -183,7 +192,6 @@ export default function Capabilities() {
                   step={step}
                   index={i}
                   total={processSteps.length}
-                  inView={procInView}
                 />
               ))}
             </div>

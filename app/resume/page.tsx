@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { createPageMetadata } from '../../src/lib/metadata';
 import { buttonVariants } from '../../src/components/primitives/Button';
 import { GlassSurface } from '../../src/components/primitives/GlassSurface';
+import { documents } from '../../src/content/documents';
 
 export const metadata = createPageMetadata(
   'Résumé and CV',
@@ -9,18 +10,11 @@ export const metadata = createPageMetadata(
   true,
 );
 
-const documents = [
-  {
-    title: 'Quick Résumé',
-    description: 'A concise overview of role, skills, and featured work.',
-    status: 'Not available yet',
-  },
-  {
-    title: 'Full CV',
-    description: 'Detailed education, projects, coursework, and achievements.',
-    status: 'Not available yet',
-  },
-];
+function formatSize(sizeBytes?: number) {
+  if (!sizeBytes) return null;
+  if (sizeBytes < 1024 * 1024) return `${Math.max(1, Math.round(sizeBytes / 1024))} KB`;
+  return `${(sizeBytes / 1024 / 1024).toFixed(1)} MB`;
+}
 
 export default function ResumePage() {
   return (
@@ -39,20 +33,38 @@ export default function ResumePage() {
         </p>
 
         <div className="grid gap-5 md:grid-cols-2">
-          {documents.map((doc) => (
-            <article key={doc.title}>
-              <GlassSurface variant="standard" className="p-6">
+          {documents.map((doc) => {
+            const published = doc.status === 'approved' && Boolean(doc.href);
+            const size = formatSize(doc.sizeBytes);
+
+            return (
+              <article key={doc.id}>
+                <GlassSurface variant="standard" className="p-6">
                 <div className="mb-4 inline-flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs font-mono text-foreground/70">
-                  PDF
+                  {doc.format}
                 </div>
                 <h2 className="text-2xl mb-2" style={{ fontFamily: 'Fraunces, serif' }}>
                   {doc.title}
                 </h2>
                 <p className="text-foreground/60 leading-relaxed mb-4">{doc.description}</p>
-                <p className="text-sm text-foreground/45 font-mono">{doc.status}</p>
-              </GlassSurface>
-            </article>
-          ))}
+                <div className="mb-5 flex flex-wrap gap-2 text-xs font-mono text-foreground/45">
+                  <span>{doc.note}</span>
+                  {size && <span>{size}</span>}
+                  <span>{published ? 'Available' : 'Not published'}</span>
+                </div>
+                {published ? (
+                  <a href={doc.href!} download className={buttonVariants({ variant: 'document' })}>
+                    Download {doc.title}
+                  </a>
+                ) : (
+                  <p className="text-sm text-foreground/55" role="status">
+                    This document is not available yet.
+                  </p>
+                )}
+                </GlassSurface>
+              </article>
+            );
+          })}
         </div>
       </div>
     </main>

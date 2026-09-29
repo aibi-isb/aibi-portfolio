@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import type { ReactNode } from 'react';
-import { featuredProjects, getProjectBySlug } from '../../../src/data/projects';
+import { getProjectBySlug, projects } from '../../../src/data/projects';
 import { projectStatuses } from '../../../src/content/project-status';
 import { createPageMetadata } from '../../../src/lib/metadata';
 import { buttonVariants } from '../../../src/components/primitives/Button';
@@ -12,7 +12,7 @@ type WorkPageProps = {
 };
 
 export function generateStaticParams() {
-  return featuredProjects.map(({ slug }) => ({ slug }));
+  return projects.map(({ slug }) => ({ slug }));
 }
 
 export const dynamicParams = false;
@@ -45,7 +45,7 @@ function CaseStudySection({ title, children }: { title: string; children: ReactN
   );
 }
 
-function ProjectMedia({ media }: { media: (typeof featuredProjects)[number]['media'][number] }) {
+function ProjectMedia({ media }: { media: (typeof projects)[number]['media'][number] }) {
   if (media.status !== 'approved' || !media.src) return null;
 
   return (
@@ -79,12 +79,12 @@ export default async function WorkSlugPage({ params }: WorkPageProps) {
   const { slug } = await params;
   const project = getProjectBySlug(slug);
 
-  if (!project || !project.featured) notFound();
+  if (!project) notFound();
 
   const status = projectStatuses[project.status];
-  const projectIndex = featuredProjects.findIndex((item) => item.slug === project.slug);
-  const previous = projectIndex > 0 ? featuredProjects[projectIndex - 1] : null;
-  const next = projectIndex < featuredProjects.length - 1 ? featuredProjects[projectIndex + 1] : null;
+  const projectIndex = projects.findIndex((item) => item.slug === project.slug);
+  const previous = projectIndex > 0 ? projects[projectIndex - 1] : null;
+  const next = projectIndex < projects.length - 1 ? projects[projectIndex + 1] : null;
   const approvedMedia = project.media.filter(
     (media) => media.status === 'approved' && media.src,
   );

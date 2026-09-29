@@ -1,5 +1,11 @@
 export interface NavigationItem { label: string; href: `#${string}` }
-export interface Capability { title: string; description: string; tools: string[]; accent: string }
+export interface Capability {
+  title: string
+  description: string
+  tools: string[]
+  accent: string
+  projectSlugs?: string[]
+}
 export interface ProcessStep { number: string; title: string; description: string }
 export interface ContactLink {
   label: string

@@ -1,9 +1,8 @@
 import { visibleContactLinks as contactLinks, emailContact } from "../content/contact"
 import { navLinks } from "../content/navigation"
-import { documentAction } from "../content/site"
-import { Link } from "react-router"
 import { useInView } from "../hooks/useInView"
 import { buttonVariants } from "./primitives/Button"
+import DocumentChooser from "./DocumentChooser"
 
 
 
@@ -14,9 +13,14 @@ export default function Contact() {
     <section id="contact" className="py-28 lg:py-36 relative overflow-hidden">
       {/* Atmospheric background */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-violet-950/8 to-indigo-950/12" />
-        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-violet-900/12 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-blue-900/8 rounded-full blur-3xl" />
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse at 18% 76%, rgba(67, 76, 78, 0.22), transparent 44%), radial-gradient(ellipse at 82% 42%, rgba(45, 65, 70, 0.18), transparent 48%), linear-gradient(180deg, transparent, rgba(19, 23, 25, 0.4))',
+          }}
+          aria-hidden="true"
+        />
       </div>
 
       <div
@@ -90,12 +94,7 @@ export default function Contact() {
               />
             </svg>
           </a>
-          <Link
-            to={documentAction.href}
-            className={buttonVariants({ variant: "glass", size: "large" })}
-          >
-            {documentAction.label}
-          </Link>
+          <DocumentChooser variant="glass" size="large" />
         </div>
       </div>
 
@@ -118,10 +117,6 @@ export default function Contact() {
               <a
                 key={item.href}
                 href={item.href}
-                onClick={(e) => {
-                  e.preventDefault()
-                  document.getElementById(item.href.slice(1))?.scrollIntoView({ behavior: "smooth" })
-                }}
                 className="text-xs text-foreground/35 hover:text-foreground/60 transition-colors"
               >
                 {item.label}

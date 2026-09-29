@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react"
 import gsap from "gsap"
 import { useGSAP } from "@gsap/react"
 import useEmblaCarousel from "embla-carousel-react"
+import DocumentChooser from "./DocumentChooser"
 import MediaFrame from "./MediaFrame"
 import { Button, buttonVariants } from "./primitives/Button"
 import { featuredProjects } from "../data/projects"
-import { site, documentAction } from "../content/site"
-import { Link } from "react-router"
+import { site } from "../content/site"
 
 gsap.registerPlugin(useGSAP)
 
@@ -276,13 +276,9 @@ export default function Hero() {
                 />
               </svg>
             </a>
-            <Link
-              to={documentAction.href}
-              data-hero-action
-              className={buttonVariants({ variant: "secondary" })}
-            >
-              {documentAction.label}
-            </Link>
+            <span data-hero-action>
+              <DocumentChooser variant="secondary" />
+            </span>
           </div>
 
           {/* AI footnote */}

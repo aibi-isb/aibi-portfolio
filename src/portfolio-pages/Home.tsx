@@ -1,6 +1,7 @@
 import About from "../components/About"
 import Capabilities from "../components/Capabilities"
 import Contact from "../components/Contact"
+import DesignToCodeScene from "../components/DesignToCodeScene"
 import FeaturedWork from "../components/FeaturedWork"
 import Hero from "../components/Hero"
 import Nav from "../components/Nav"
@@ -16,6 +17,8 @@ export default function Home() {
         <FeaturedWork />
         <div className="divider" />
         <About />
+        <div className="divider" />
+        <DesignToCodeScene />
         <div className="divider" />
         <Capabilities />
         <div className="divider" />

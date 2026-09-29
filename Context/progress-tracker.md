@@ -4,11 +4,11 @@ Update this file after every meaningful implementation, content-model, route, de
 
 ## Current Phase
 
-- In progress: Epic 3 — Navigation and homepage.
+- Complete: Epic 3 — Navigation and homepage.
 
 ## Current Goal
 
-- Build the remaining homepage storytelling sections, starting with the cinematic featured-work sequence, while preserving the existing content registry and asset approval rules.
+- Begin Epic 4 by building the reusable case-study renderer and review workflow for the first four projects.
 
 ## Completed
 
@@ -17,21 +17,25 @@ Update this file after every meaningful implementation, content-model, route, de
 - Epic 2 design system: CVA button variants, reusable `GlassSurface`, shared dark/light glass, color, radius, spacing, shadow, blur, and motion tokens.
 - IBS-005 navigation: floating glass navigation, observer-based active bookmarks, native hash navigation, responsive menu, keyboard dismissal, and reduced-motion-aware GSAP motion.
 - IBS-006 hero: content-driven project previews, Embla controls, pause behavior, reduced-motion handling, and a scoped GSAP entrance.
+- IBS-007 featured work: alternating cinematic project sections driven by the project registry, with visible role, dates, status, personal contribution, approved-media handling, and reversible scroll reveals.
+- IBS-008 About portrait: prominent reversible desktop width-and-clip reveal; floated portrait lets copy reflow beside and beneath it, with the availability panel clearing below. Completion uses a fixed viewport-relative scrub distance so full width is reached while the photo is still visible. Tablet/mobile retain the stacked layout and use clip-only portrait motion.
+- IBS-009 design-to-code scene: separate laptop, tablet, and phone structures; responsive device selection; reversible scroll timeline; static comparison for mobile and reduced motion.
+- IBS-010 capabilities and process: capability cards link to supporting project evidence; the current process step is highlighted through Intersection Observer; AI contribution wording remains content-driven.
+- IBS-011 supporting project links: static case-study generation now includes every registered project, not only featured entries.
+- IBS-012 résumé/CV access: shared native-dialog chooser uses the document registry, supports keyboard dismissal/focus handling, displays file details when known, and does not link unpublished documents.
+- IBS-013 contact conclusion: verified contact records remain the source of visible links; footer bookmarks use native hash navigation.
 - Featured case-study routes use project data for content and metadata. Review-stage case studies are marked `noindex, nofollow` until approved.
-- `pnpm build` passed on 2026-09-29 and generated `/`, `/resume`, `/cv`, and all four featured work routes.
-- Browser checks confirmed the case-study content and metadata, dark/light glass colors, and responsive navbar alignment.
+- The latest `pnpm build` passed on 2026-09-29 after Epic 3 and the About portrait refinement; the static export generated all 14 pages.
 
 ## In Progress
 
-- Epic 3 overall. Navigation and hero are implemented; the current Featured Work section still needs the cinematic presentation described by IBS-007.
 - Public content readiness: project records remain in review, and approved project imagery, portrait, logo, résumé, CV, and profile details are still pending where listed in the asset inventory.
 
 ## Next Up
 
-- IBS-007: build the cinematic featured-work sequence from `featuredProjects`, using labeled placeholders until approved media arrives.
-- IBS-008: implement the expanding portrait with a stable reduced-motion/mobile presentation once the portrait is supplied.
-- IBS-009: build the responsive laptop/tablet/phone design-to-code scene with reversible scroll behavior.
-- Continue with capabilities/process, supporting work, document access, and contact polish; then review and populate case studies with approved content.
+- IBS-014: build the flexible case-study template from project records, including optional sections, related-project navigation, and media galleries.
+- IBS-015: review and populate House Rental, SALONE FRESH, YUMMY Provision Shop, and Dash Delivery content with approved evidence.
+- Once approved assets/content arrive, replace labeled media placeholders and update project content statuses before indexing.
 
 ## Open Questions
 
@@ -46,10 +50,16 @@ Update this file after every meaningful implementation, content-model, route, de
 - GSAP with `@gsap/react` owns scene entrance/scroll motion; Embla owns slideshow state; Intersection Observer owns section visibility. Native scrolling remains in control.
 - Case-study generation uses `featuredProjects`; unapproved records are excluded from search indexing through generated metadata.
 - CVA defines shared button variants. `GlassSurface` and legacy glass classes consume centralized CSS tokens and have opaque fallbacks.
+- The design-to-code scene uses CSS device-specific laptop/tablet/phone structures; ScrollTrigger owns reversible desktop/tablet motion, while mobile and reduced-motion users receive stable alternatives.
+- The résumé/CV chooser uses the native `<dialog>` element for focus and Escape behavior; document links are only rendered for approved records with a path.
 
 ## Session Notes
 
 - Workspace: `/Users/aibi/Documents/GitHub/aibi-portfolio`.
 - Run `npm run dev -- --port 3002` for local browser work when the default ports are occupied; the current `dev` script uses Webpack.
 - Run `pnpm build` to validate the static export.
-- The latest Epic 2 source changes, dependency updates, and regenerated `out/` export are currently uncommitted. Preserve them when continuing; the old hashed export chunks are replaced by new build output.
+- Epic 3 passed `pnpm exec tsc --noEmit --incremental false`, `git diff --check`, and `pnpm build` on 2026-09-29. The static export generated 14 pages, including every registered project route.
+- Browser QA verified the native document chooser opens/closes on Escape and restores focus; case-study and document metadata; supporting-project route rendering; desktop/tablet/mobile device selection; reduced-motion static comparison; reversible design/build sequence; mobile hash navigation; and no horizontal overflow at 390px.
+- About portrait QA verified desktop width expands from 375 px to about 574 px and contracts in reverse; at full expansion the image spans approximately y=192–958 in a 900 px viewport. Biography copy shifts/reflows and the availability panel remains below. At 390 px, the portrait stays stacked, animates only its clip reveal, and the document has no horizontal overflow.
+- The Epic 3 source changes and regenerated `out/` export are currently uncommitted. Preserve them when continuing; old hashed export chunks were replaced by the latest build output.
+- A single Webpack dev server is available at `http://localhost:3002` for the current preview.
