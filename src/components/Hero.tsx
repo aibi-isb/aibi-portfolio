@@ -5,6 +5,7 @@ import gsap from "gsap"
 import { useGSAP } from "@gsap/react"
 import useEmblaCarousel from "embla-carousel-react"
 import MediaFrame from "./MediaFrame"
+import { Button, buttonVariants } from "./primitives/Button"
 import { featuredProjects } from "../data/projects"
 import { site, documentAction } from "../content/site"
 import { Link } from "react-router"
@@ -256,7 +257,7 @@ export default function Hero() {
             <a
               href="#work"
               data-hero-action
-              className="button-primary"
+              className={buttonVariants({ variant: "primary" })}
             >
               View work
               <svg
@@ -278,7 +279,7 @@ export default function Hero() {
             <Link
               to={documentAction.href}
               data-hero-action
-              className="button-secondary"
+              className={buttonVariants({ variant: "secondary" })}
             >
               {documentAction.label}
             </Link>
@@ -316,43 +317,46 @@ export default function Hero() {
             </DeviceFrame>
 
             <div className="mt-5 flex items-center justify-between gap-3" aria-label="Project preview controls">
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="small"
                 aria-label="Previous project preview"
                 onClick={() => {
                   emblaApi?.scrollPrev()
                   setIsPlaying(false)
                 }}
-                className="button-ghost min-h-10 px-3"
               >
                 Previous
-              </button>
+              </Button>
               <div className="flex items-center gap-3">
                 <p className="label-mono m-0" aria-live="off" aria-atomic="true">
                   {String(slide + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
                 </p>
-                <button
+                <Button
                   type="button"
+                  variant="glass"
+                  size="small"
                   aria-label={isPlaying ? "Pause automatic previews" : "Resume automatic previews"}
                   aria-pressed={isPlaying && !reducedMotion}
                   disabled={reducedMotion}
                   onClick={() => setIsPlaying((playing) => !playing)}
-                  className="button-ghost min-h-10 px-3 disabled:opacity-40"
                 >
                   {reducedMotion ? "Manual" : isPlaying ? "Pause" : "Play"}
-                </button>
+                </Button>
               </div>
-              <button
+              <Button
                 type="button"
+                variant="secondary"
+                size="small"
                 aria-label="Next project preview"
                 onClick={() => {
                   emblaApi?.scrollNext()
                   setIsPlaying(false)
                 }}
-                className="button-ghost min-h-10 px-3"
               >
                 Next
-              </button>
+              </Button>
             </div>
 
             <div className="mt-3 flex justify-center gap-2" aria-label="Choose project preview">

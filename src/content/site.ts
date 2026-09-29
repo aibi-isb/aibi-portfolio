@@ -6,6 +6,8 @@ export const site = {
   firstName: "Ibrahim",
   lastName: "Bangura",
   title: "IB Studio — Ibrahim Bangura's Design and Development Portfolio",
+  description:
+    "Portfolio of Ibrahim Bangura, showcasing design, frontend development, systems analysis, and data modelling work.",
   role: "Junior UI and UX Designer and Frontend Developer",
   introduction:
     "I turn research, requirements, and ideas into clear interfaces and working digital products — across design, development, and systems.",

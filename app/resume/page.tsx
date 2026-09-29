@@ -1,4 +1,13 @@
 import Link from 'next/link';
+import { createPageMetadata } from '../../src/lib/metadata';
+import { buttonVariants } from '../../src/components/primitives/Button';
+import { GlassSurface } from '../../src/components/primitives/GlassSurface';
+
+export const metadata = createPageMetadata(
+  'Résumé and CV',
+  'View the professional résumé and full CV for Ibrahim Bangura.',
+  true,
+);
 
 const documents = [
   {
@@ -17,7 +26,7 @@ export default function ResumePage() {
   return (
     <main className="min-h-screen bg-background text-foreground px-6 py-24">
       <div className="section-shell">
-        <Link href="/" className="button-ghost mb-8">
+        <Link href="/" className={buttonVariants({ variant: 'textArrow', size: 'small', className: 'mb-8' })}>
           ← Back to portfolio
         </Link>
 
@@ -31,15 +40,17 @@ export default function ResumePage() {
 
         <div className="grid gap-5 md:grid-cols-2">
           {documents.map((doc) => (
-            <article key={doc.title} className="glass-panel rounded-2xl p-6">
-              <div className="mb-4 inline-flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs font-mono text-foreground/70">
-                PDF
-              </div>
-              <h2 className="text-2xl mb-2" style={{ fontFamily: 'Fraunces, serif' }}>
-                {doc.title}
-              </h2>
-              <p className="text-foreground/60 leading-relaxed mb-4">{doc.description}</p>
-              <p className="text-sm text-foreground/45 font-mono">{doc.status}</p>
+            <article key={doc.title}>
+              <GlassSurface variant="standard" className="p-6">
+                <div className="mb-4 inline-flex items-center rounded-xl border border-white/10 bg-white/5 px-3 py-1 text-xs font-mono text-foreground/70">
+                  PDF
+                </div>
+                <h2 className="text-2xl mb-2" style={{ fontFamily: 'Fraunces, serif' }}>
+                  {doc.title}
+                </h2>
+                <p className="text-foreground/60 leading-relaxed mb-4">{doc.description}</p>
+                <p className="text-sm text-foreground/45 font-mono">{doc.status}</p>
+              </GlassSurface>
             </article>
           ))}
         </div>

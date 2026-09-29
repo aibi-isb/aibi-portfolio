@@ -3,6 +3,7 @@ import { navLinks } from "../content/navigation"
 import { documentAction } from "../content/site"
 import { Link } from "react-router"
 import { useInView } from "../hooks/useInView"
+import { buttonVariants } from "./primitives/Button"
 
 
 
@@ -76,7 +77,7 @@ export default function Contact() {
         >
           <a
             href={emailContact.href ?? undefined}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors"
+            className={buttonVariants({ variant: "contact", size: "large" })}
           >
             Let's talk
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
@@ -91,7 +92,7 @@ export default function Contact() {
           </a>
           <Link
             to={documentAction.href}
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-xl glass-light text-foreground/70 hover:text-foreground font-medium transition-colors"
+            className={buttonVariants({ variant: "glass", size: "large" })}
           >
             {documentAction.label}
           </Link>

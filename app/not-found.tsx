@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { buttonVariants } from '../src/components/primitives/Button';
 
 export default function NotFound() {
   return (
@@ -9,7 +10,7 @@ export default function NotFound() {
         <p className="text-foreground/65 mb-8 leading-relaxed">
           This page does not exist or has moved. Head back to the portfolio homepage.
         </p>
-        <Link href="/" className="button-primary">
+        <Link href="/" className={buttonVariants({ variant: 'primary' })}>
           Return home
         </Link>
       </div>

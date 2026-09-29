@@ -1,10 +1,19 @@
 import Link from 'next/link';
+import { createPageMetadata } from '../../src/lib/metadata';
+import { buttonVariants } from '../../src/components/primitives/Button';
+import { GlassSurface } from '../../src/components/primitives/GlassSurface';
+
+export const metadata = createPageMetadata(
+  'Full CV',
+  'View the detailed CV for Ibrahim Bangura, including education, projects, coursework, and achievements.',
+  true,
+);
 
 export default function CvPage() {
   return (
     <main className="min-h-screen bg-background text-foreground px-6 py-24">
       <div className="section-shell">
-        <Link href="/" className="button-ghost mb-8">
+        <Link href="/" className={buttonVariants({ variant: 'textArrow', size: 'small', className: 'mb-8' })}>
           ← Back to portfolio
         </Link>
 
@@ -15,12 +24,12 @@ export default function CvPage() {
           document once the file is ready.
         </p>
 
-        <div className="glass-panel rounded-2xl p-6 max-w-xl">
+        <GlassSurface variant="standard" className="p-6 max-w-xl">
           <p className="text-sm text-foreground/60 leading-relaxed">
             This route is intentionally protected from publishing placeholders. It will be replaced with
             the final PDF once the document is approved and publicly available.
           </p>
-        </div>
+        </GlassSurface>
       </div>
     </main>
   );

@@ -1,5 +1,7 @@
 'use client';
 
+import { Button } from '../src/components/primitives/Button';
+
 export default function Error({ reset }: { reset: () => void }) {
   return (
     <main className="min-h-screen bg-background text-foreground flex items-center justify-center px-6">
@@ -9,9 +11,9 @@ export default function Error({ reset }: { reset: () => void }) {
         <p className="text-foreground/65 mb-8 leading-relaxed">
           The IB Studio portfolio hit an unexpected issue while loading. Please try again.
         </p>
-        <button onClick={() => reset()} className="button-primary">
+        <Button onClick={() => reset()} variant="primary">
           Try again
-        </button>
+        </Button>
       </div>
     </main>
   );
