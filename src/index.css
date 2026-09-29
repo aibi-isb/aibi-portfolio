@@ -58,6 +58,10 @@ html {
   -moz-osx-font-smoothing: grayscale;
 }
 
+main section[id] {
+  scroll-margin-top: 6rem;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -215,7 +219,78 @@ body::before {
   background-size: 256px 256px;
 }
 
+.section-shell {
+  position: relative;
+  width: min(100%, 1280px);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+
+.eyebrow {
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+}
+
+.button-primary,
+.button-secondary,
+.button-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.625rem;
+  min-height: 2.875rem;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.875rem;
+  border: 1px solid transparent;
+  font-weight: 500;
+  transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, color 180ms ease;
+}
+
+.button-primary {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+.button-primary:hover,
+.button-secondary:hover,
+.button-ghost:hover {
+  transform: translateY(-1px);
+}
+
+.button-secondary {
+  border-color: rgba(247, 246, 242, 0.12);
+  background: rgba(247, 246, 242, 0.02);
+  color: var(--foreground);
+}
+
+.button-ghost {
+  border-color: rgba(247, 246, 242, 0.08);
+  background: transparent;
+  color: var(--foreground);
+}
+
+.glass-panel {
+  background: rgba(16, 16, 19, 0.72);
+  border: 1px solid rgba(247, 246, 242, 0.08);
+  backdrop-filter: blur(18px) saturate(150%);
+  -webkit-backdrop-filter: blur(18px) saturate(150%);
+}
+
+.surface-grid {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
   .reveal {
     opacity: 1;
     transform: none;

@@ -1,8 +1,15 @@
+'use client'
+
+import { useEffect, useRef, useState } from "react"
+import gsap from "gsap"
+import { useGSAP } from "@gsap/react"
+import useEmblaCarousel from "embla-carousel-react"
 import MediaFrame from "./MediaFrame"
 import { featuredProjects } from "../data/projects"
 import { site, documentAction } from "../content/site"
-import { useEffect, useRef, useState } from "react"
 import { Link } from "react-router"
+
+gsap.registerPlugin(useGSAP)
 
 const slides = featuredProjects.map((project) => ({
   media: project.media.find((media) => media.id.endsWith("-cover")),
@@ -16,7 +23,10 @@ const slides = featuredProjects.map((project) => ({
 function ProjectSlide({ slide, active }: { slide: (typeof slides)[0]; active: boolean }) {
   return (
     <div
-      className={`absolute inset-0 transition-all duration-700 ${
+      role="group"
+      aria-roledescription="slide"
+      aria-label={slide.label}
+      className={`relative h-full min-w-0 flex-[0_0_100%] transition-all duration-700 ${
         active ? "opacity-100 scale-100" : "opacity-0 scale-[1.02]"
       }`}
       aria-hidden={!active}
@@ -69,7 +79,7 @@ function ProjectSlide({ slide, active }: { slide: (typeof slides)[0]; active: bo
 
 function DeviceFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="relative w-full max-w-sm mx-auto">
+    <div className="relative w-full max-w-lg mx-auto">
       {/* Laptop body */}
       <div
         className="relative rounded-xl overflow-hidden border border-white/10"
@@ -96,58 +106,120 @@ function DeviceFrame({ children }: { children: React.ReactNode }) {
 }
 
 export default function Hero() {
+  const root = useRef<HTMLElement>(null)
+  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: slides.length > 1 })
   const [slide, setSlide] = useState(0)
-  const [entered, setEntered] = useState(false)
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [isInView, setIsInView] = useState(false)
+  const [isInteracting, setIsInteracting] = useState(false)
+  const [reducedMotion, setReducedMotion] = useState(false)
+
+  useGSAP(
+    () => {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
+
+      const timeline = gsap.timeline({ defaults: { ease: "power3.out" } })
+      timeline
+        .fromTo(
+          "[data-hero-identity]",
+          { y: 14, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.5 },
+        )
+        .fromTo(
+          "[data-hero-title-line]",
+          { yPercent: 110 },
+          { yPercent: 0, duration: 0.8, stagger: 0.12 },
+          "-=0.2",
+        )
+        .fromTo(
+          "[data-hero-copy]",
+          { y: 14, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.55, stagger: 0.08 },
+          "-=0.35",
+        )
+        .fromTo(
+          "[data-hero-action]",
+          { y: 10, autoAlpha: 0 },
+          { y: 0, autoAlpha: 1, duration: 0.4, stagger: 0.08 },
+          "-=0.3",
+        )
+        .fromTo(
+          "[data-hero-device]",
+          { y: 28, rotateX: 2, autoAlpha: 0 },
+          { y: 0, rotateX: 0, autoAlpha: 1, duration: 0.8 },
+          "-=0.65",
+        )
+    },
+    { scope: root },
+  )
 
   useEffect(() => {
-    const t = setTimeout(() => setEntered(true), 100)
-    return () => clearTimeout(t)
+    const preference = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const updatePreference = () => setReducedMotion(preference.matches)
+    updatePreference()
+    preference.addEventListener("change", updatePreference)
+    return () => preference.removeEventListener("change", updatePreference)
   }, [])
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => {
-      setSlide((s) => (s + 1) % slides.length)
-    }, 3500)
+    const element = root.current
+    if (!element) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsInView(entry.isIntersecting),
+      { threshold: 0.1 },
+    )
+    observer.observe(element)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    if (!emblaApi) return
+
+    const updateSelectedSlide = () => setSlide(emblaApi.selectedScrollSnap())
+    const pauseForDrag = () => setIsPlaying(false)
+    emblaApi.on("select", updateSelectedSlide)
+    emblaApi.on("reInit", updateSelectedSlide)
+    emblaApi.on("pointerDown", pauseForDrag)
+    updateSelectedSlide()
+
     return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current)
+      emblaApi.off("select", updateSelectedSlide)
+      emblaApi.off("reInit", updateSelectedSlide)
+      emblaApi.off("pointerDown", pauseForDrag)
     }
-  }, [])
+  }, [emblaApi])
 
-  function goTo(i: number) {
-    setSlide(i)
-    if (intervalRef.current) clearInterval(intervalRef.current)
-    intervalRef.current = setInterval(() => {
-      setSlide((s) => (s + 1) % slides.length)
-    }, 3500)
-  }
+  useEffect(() => {
+    if (!emblaApi || !isPlaying || !isInView || isInteracting || reducedMotion) return
 
-  function scrollToWork(e: React.MouseEvent) {
-    e.preventDefault()
-    document.getElementById("work")?.scrollIntoView({ behavior: "smooth" })
-  }
+    const interval = window.setInterval(() => emblaApi.scrollNext(), 5000)
+    return () => window.clearInterval(interval)
+  }, [emblaApi, isInView, isInteracting, isPlaying, reducedMotion])
 
   return (
     <section
+      ref={root}
+      id="hero"
+      aria-labelledby="hero-title"
       className="relative min-h-screen flex flex-col justify-center overflow-hidden"
-      aria-label="Introduction"
     >
-      {/* Atmospheric background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-violet-900/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-900/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/3 right-1/3 w-64 h-64 bg-emerald-900/8 rounded-full blur-3xl" />
+      <div
+        className="absolute inset-0 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(ellipse at 74% 36%, rgba(35, 66, 78, 0.25), transparent 43%), radial-gradient(ellipse at 24% 78%, rgba(48, 56, 62, 0.22), transparent 48%), linear-gradient(135deg, #08080a, #101216 58%, #08080a)",
+        }}
+      />
+      <div className="absolute inset-0 surface-grid opacity-30 pointer-events-none" aria-hidden="true">
       </div>
 
       <div className="relative z-10 max-w-6xl mx-auto px-6 pt-28 pb-16 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         {/* Left: text */}
         <div>
           {/* Eyebrow */}
-          <div
-            className={`transition-all duration-700 ${
-              entered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
+          <div data-hero-identity>
             <span className="label-mono block">{site.brand}</span>
             <span className="mt-2 block text-xs uppercase tracking-[0.22em] text-foreground/40">
               {site.portfolioLabel}
@@ -156,46 +228,37 @@ export default function Hero() {
 
           {/* Headline */}
           <h1
-            className={`display-2xl mt-4 mb-6 transition-all duration-700 delay-100 ${
-              entered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
-            }`}
+            id="hero-title"
+            aria-label={`${site.firstName} ${site.lastName}`}
+            className="display-2xl mt-4 mb-6"
             style={{ fontFamily: "Fraunces, serif" }}
           >
-            {site.firstName}
-            <br />
-            <span className="gradient-text italic">{site.lastName}</span>
+            <span className="block overflow-hidden">
+              <span data-hero-title-line className="block">{site.firstName}</span>
+            </span>
+            <span className="block overflow-hidden">
+              <span data-hero-title-line className="gradient-text italic block">{site.lastName}</span>
+            </span>
           </h1>
 
           {/* Role */}
-          <p
-            className={`text-base text-foreground/50 font-light mb-4 transition-all duration-700 delay-150 ${
-              entered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
+          <p data-hero-copy className="text-base text-foreground/50 font-light mb-4">
             {site.role}
           </p>
 
           {/* Body */}
-          <p
-            className={`text-lg text-foreground/70 leading-relaxed max-w-md mb-8 transition-all duration-700 delay-200 ${
-              entered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
+          <p data-hero-copy className="text-lg text-foreground/70 leading-relaxed max-w-md mb-8">
             {site.introduction}
           </p>
 
           {/* CTAs */}
-          <div
-            className={`flex flex-wrap gap-3 transition-all duration-700 delay-300 ${
-              entered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"
-            }`}
-          >
+          <div className="flex flex-wrap gap-3">
             <a
               href="#work"
-              onClick={scrollToWork}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-foreground text-background font-medium hover:bg-foreground/90 transition-colors"
+              data-hero-action
+              className="button-primary"
             >
-              View my work
+              View work
               <svg
                 width="14"
                 height="14"
@@ -214,65 +277,112 @@ export default function Hero() {
             </a>
             <Link
               to={documentAction.href}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg glass-light text-foreground/80 font-medium hover:text-foreground transition-colors"
+              data-hero-action
+              className="button-secondary"
             >
               {documentAction.label}
             </Link>
-            <a
-              href="#contact"
-              onClick={(e) => {
-                e.preventDefault()
-                document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })
-              }}
-              className="inline-flex items-center px-5 py-2.5 rounded-lg text-foreground/50 hover:text-foreground/80 transition-colors text-sm"
-            >
-              Let's talk →
-            </a>
           </div>
 
           {/* AI footnote */}
-          <p
-            className={`mt-8 text-xs text-foreground/30 max-w-xs leading-relaxed transition-all duration-700 delay-500 ${
-              entered ? "opacity-100" : "opacity-0"
-            }`}
-          >
+          <p data-hero-copy className="mt-8 text-xs text-foreground/40 max-w-xs leading-relaxed">
             {site.aiStatement}
           </p>
         </div>
 
         {/* Right: device */}
         <div
-          className={`transition-all duration-1000 delay-400 ${
-            entered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          }`}
+          data-hero-device
+          className="relative"
+          onPointerEnter={() => setIsInteracting(true)}
+          onPointerLeave={() => setIsInteracting(false)}
+          onFocusCapture={() => setIsInteracting(true)}
+          onBlurCapture={(event) => {
+            const nextTarget = event.relatedTarget
+            if (!(nextTarget instanceof Node) || !event.currentTarget.contains(nextTarget)) {
+              setIsInteracting(false)
+            }
+          }}
         >
-          <DeviceFrame>
-            {slides.map((s, i) => (
-              <ProjectSlide key={i} slide={s} active={i === slide} />
-            ))}
-          </DeviceFrame>
+          <div className="mx-auto w-full max-w-lg">
+            <DeviceFrame>
+              <div className="absolute inset-0 overflow-hidden" ref={emblaRef}>
+                <div className="flex h-full touch-pan-y">
+                  {slides.map((item, index) => (
+                    <ProjectSlide key={item.label} slide={item} active={index === slide} />
+                  ))}
+                </div>
+              </div>
+            </DeviceFrame>
 
-          {/* Slide dots */}
-          <div className="flex justify-center gap-2 mt-5">
-            {slides.map((s, i) => (
+            <div className="mt-5 flex items-center justify-between gap-3" aria-label="Project preview controls">
               <button
-                key={i}
-                aria-label={`Show ${s.label}`}
-                onClick={() => goTo(i)}
-                className={`rounded-full transition-all duration-300 ${
-                  i === slide ? "w-5 h-1.5 bg-foreground" : "w-1.5 h-1.5 bg-foreground/25"
-                }`}
-              />
-            ))}
+                type="button"
+                aria-label="Previous project preview"
+                onClick={() => {
+                  emblaApi?.scrollPrev()
+                  setIsPlaying(false)
+                }}
+                className="button-ghost min-h-10 px-3"
+              >
+                Previous
+              </button>
+              <div className="flex items-center gap-3">
+                <p className="label-mono m-0" aria-live="off" aria-atomic="true">
+                  {String(slide + 1).padStart(2, "0")} / {String(slides.length).padStart(2, "0")}
+                </p>
+                <button
+                  type="button"
+                  aria-label={isPlaying ? "Pause automatic previews" : "Resume automatic previews"}
+                  aria-pressed={isPlaying && !reducedMotion}
+                  disabled={reducedMotion}
+                  onClick={() => setIsPlaying((playing) => !playing)}
+                  className="button-ghost min-h-10 px-3 disabled:opacity-40"
+                >
+                  {reducedMotion ? "Manual" : isPlaying ? "Pause" : "Play"}
+                </button>
+              </div>
+              <button
+                type="button"
+                aria-label="Next project preview"
+                onClick={() => {
+                  emblaApi?.scrollNext()
+                  setIsPlaying(false)
+                }}
+                className="button-ghost min-h-10 px-3"
+              >
+                Next
+              </button>
+            </div>
+
+            <div className="mt-3 flex justify-center gap-2" aria-label="Choose project preview">
+              {slides.map((item, index) => (
+                <button
+                  key={item.label}
+                  type="button"
+                  aria-label={`Show ${item.label}`}
+                  aria-pressed={index === slide}
+                  onClick={() => {
+                    emblaApi?.scrollTo(index)
+                    setIsPlaying(false)
+                  }}
+                  className={`min-h-8 px-2 flex items-center justify-center ${
+                    index === slide ? "text-foreground" : "text-foreground/35"
+                  }`}
+                >
+                  <span className={`block h-1 rounded-full transition-all duration-300 ${
+                    index === slide ? "w-6 bg-current" : "w-2 bg-current"
+                  }`} />
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
       {/* Scroll indicator */}
       <div
-        className={`absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-700 delay-700 ${
-          entered ? "opacity-40" : "opacity-0"
-        }`}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-40"
         aria-hidden
       >
         <span className="label-mono text-foreground/40" style={{ fontSize: "0.6rem" }}>

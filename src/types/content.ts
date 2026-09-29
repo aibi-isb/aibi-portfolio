@@ -19,3 +19,18 @@ export interface PortfolioDocument {
   status: "missing" | "review" | "approved"
   sizeBytes?: number
 }
+
+export type AssetStatus = "missing" | "review" | "approved"
+
+export interface AssetInventoryItem {
+  id: string
+  label: string
+  category: "brand" | "person" | "document" | "profile" | "project" | "media"
+  kind: "logo" | "photo" | "document" | "link" | "image" | "design" | "diagram" | "video"
+  path: string | null
+  status: AssetStatus
+  owner: string
+  required: boolean
+  dimensions?: string
+  notes: string
+}

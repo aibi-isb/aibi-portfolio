@@ -1,3 +1,5 @@
+import { assetInventory } from "./inventory"
+
 export const site = {
   brand: "IB Studio",
   portfolioLabel: "The portfolio of Ibrahim Bangura",
@@ -11,6 +13,7 @@ export const site = {
     "I use AI and coding agents to accelerate design, implementation, and learning while retaining responsibility for requirements, decisions, review, refinement, and testing.",
 }
 
+export const contentInventory = assetInventory
 export const documentAction = { label: "View résumé and CV", href: "/resume" }
 
 export const homepageSections = {
