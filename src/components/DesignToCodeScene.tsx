@@ -17,6 +17,24 @@ function DeviceScreen() {
         <span>Design ↔ build</span>
       </div>
       <div className="design-screen__canvas">
+        {processSteps.map((step, index) => (
+          <div key={step.number} className="design-screen__mode design-screen__mode--state" data-screen-state data-screen-state-index={index}>
+            <p className="design-screen__kicker">
+              {step.number} — {step.title}
+            </p>
+            <div className="design-screen__state-panel">
+              <div className="design-screen__state-copy">
+                <strong>{step.title}</strong>
+                <span>{step.description}</span>
+              </div>
+              <div className="design-screen__state-metrics" aria-hidden="true">
+                <span>Flow</span>
+                <span>Signal</span>
+                <span>Review</span>
+              </div>
+            </div>
+          </div>
+        ))}
         <div className="design-screen__mode design-screen__mode--design" data-screen-design>
           <p className="design-screen__kicker">Interface blueprint</p>
           <div className="design-screen__blueprint">
@@ -121,19 +139,109 @@ export default function DesignToCodeScene() {
           const build = scene.querySelector<HTMLElement>("[data-screen-build]")
           const guides = scene.querySelector<HTMLElement>("[data-screen-guides]")
           const steps = scene.querySelectorAll<HTMLElement>("[data-process-step]")
-          if (!device || !design || !build || !guides || steps.length === 0) return
+          const screenStates = gsap.utils.toArray<HTMLElement>("[data-screen-state]")
+          if (!device || !guides || steps.length === 0) return
+
+          if (conditions?.laptop) {
+            const stateCount = screenStates.length
+            if (stateCount === 0) return
+
+            const lid = device.querySelector<HTMLElement>("[data-device-lid]")
+            const entryTransform = { x: 0, y: 70, rotateX: 16, rotateY: -18, scale: 0.92 }
+            const centeredTransform = { x: 0, y: 0, rotateX: 0, rotateY: 0, scale: 1 }
+            const exitTransform = { x: 0, y: 0, rotateX: 0, rotateY: -18, scale: 0.97 }
+
+            gsap.set(screenStates, {
+              autoAlpha: 0,
+              x: 26,
+              y: 8,
+              filter: "blur(4px)",
+              transformPerspective: 1200,
+            })
+            gsap.set(screenStates[0], {
+              autoAlpha: 1,
+              x: 0,
+              y: 0,
+              filter: "blur(0px)",
+            })
+            gsap.set(device, {
+              ...entryTransform,
+              transformPerspective: 1200,
+              force3D: true,
+              transformOrigin: "50% 50%",
+            })
+            if (lid) gsap.set(lid, { rotateX: 0, rotateY: 0, transformPerspective: 1200, force3D: true })
+
+            const updateState = (progress: number) => {
+              const activeIndex = Math.min(stateCount - 1, Math.max(0, Math.round(progress * (stateCount - 1))))
+
+              gsap.to(screenStates, {
+                autoAlpha: (index) => (index === activeIndex ? 1 : 0),
+                x: (index) => (index === activeIndex ? 0 : index < activeIndex ? -16 : 18),
+                y: (index) => (index === activeIndex ? 0 : 8),
+                filter: (index) => (index === activeIndex ? "blur(0px)" : "blur(3px)"),
+                duration: 0.26,
+                ease: "power2.out",
+                overwrite: true,
+              })
+            }
+
+            const scrollTimeline = gsap.timeline({
+              scrollTrigger: {
+                trigger: scene,
+                pin: pinnedStage,
+                start: "top top",
+                end: () => `+=${Math.round(window.innerHeight * 1.9)}`,
+                scrub: 1,
+                snap: {
+                  snapTo: 1 / (stateCount - 1),
+                  duration: 0.42,
+                  ease: "power2.inOut",
+                },
+                invalidateOnRefresh: true,
+                anticipatePin: 1,
+                onUpdate: (self) => updateState(self.progress),
+              },
+            })
+
+            scrollTimeline
+              .fromTo(device, entryTransform, centeredTransform, 0)
+              .to(device, { ...centeredTransform, duration: 0.25 }, 0.42)
+              .to(device, { ...exitTransform, duration: 0.9, ease: "power2.inOut" }, 1)
+
+            if (lid) {
+              scrollTimeline.to(lid, { rotateX: 0, rotateY: 0, duration: 0.2, ease: "power2.inOut" }, 0)
+            }
+
+            gsap.fromTo(
+              steps,
+              { autoAlpha: 0.35, y: 6 },
+              {
+                autoAlpha: 1,
+                y: 0,
+                stagger: 0.08,
+                duration: 0.3,
+                ease: "power2.out",
+                scrollTrigger: {
+                  trigger: scene,
+                  start: "top 62%",
+                  end: "bottom 18%",
+                  scrub: 0.8,
+                },
+              },
+            )
+
+            return
+          }
 
           const sequence = gsap.timeline({
             scrollTrigger: {
               trigger: scene,
-              pin: conditions?.laptop ? pinnedStage : false,
-              start: conditions?.laptop ? "top top" : "top 72%",
-              end: conditions?.laptop
-                ? () => `+=${Math.round(window.innerHeight * 1.65)}`
-                : "bottom 24%",
+              pin: false,
+              start: "top 72%",
+              end: "bottom 24%",
               scrub: 0.8,
               invalidateOnRefresh: true,
-              anticipatePin: conditions?.laptop ? 1 : 0,
             },
           })
 
@@ -150,12 +258,7 @@ export default function DesignToCodeScene() {
               0.45,
             )
 
-          if (conditions?.laptop) {
-            const lid = device.querySelector<HTMLElement>("[data-device-lid]")
-            if (lid) sequence.to(lid, { rotateX: 62, duration: 0.16 }, 0.9)
-          } else {
-            sequence.to(device, { rotateY: 7, rotateX: 12, duration: 0.16 }, 0.9)
-          }
+          sequence.to(device, { rotateY: 7, rotateX: 12, duration: 0.16 }, 0.9)
         },
       )
 
